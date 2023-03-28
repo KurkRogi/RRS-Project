@@ -1,3 +1,37 @@
 from django.db import models
+from django.contrib.auth.models import User
+from django.utils import timezone
 
-# Create your models here.
+
+class Table(models.Model):
+
+    name = models.CharField(max_length=10)
+    description = models.CharField(max_length=100, blank=True)
+    sits = models.IntegerField(default=4)
+
+    def __str__(self):
+        return f'Table {self.name} ({self.sits})'
+
+
+class Booking(models.Model):
+
+    BOOKING_TIMES = (
+        (0, "16:00"),
+        (2, "17:00"),
+        (4, "18:00"),
+        (6, "19:00"),
+        (8, "20:00"),
+        (10, "21:00"),
+        (12, "22:00"),
+    )
+
+    name = models.CharField(max_length=100)
+    date = models.DateField(default=timezone.now)
+    time = models.IntegerField(default=1)
+    tables = models.ManyToManyField(Table, blank=True)
+
+    def __str__(self):
+        return f'{self.name} booked on {self.date.strftime("%-d %B %Y")}'
+
+    class Meta:
+        ordering = ['date', 'time']

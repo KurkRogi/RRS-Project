@@ -1,0 +1,111 @@
+{% extends 'bookings/base.html' %}
+{% load static %}
+
+{% block content %}
+        <!-- About-->
+        <!-- Services-->
+        <section class="page-section" id="services">
+            <div class="container px-4 px-lg-5">
+                <h2 class="text-center mt-0">Our Offer</h2>
+                <hr class="divider" />
+                <div class="row gx-4 gx-lg-5">
+                    <div class="col-lg-3 col-md-6 text-center">
+                        <div class="mt-5">
+                            <div class="mb-2"><i class="bi-wifi fs-1 text-primary"></i></div>
+                            <h3 class="h4 mb-2">Free WiFi</h3>
+                            <p class="text-muted mb-0">We offer a free WiFi access point to our customers.</p>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 text-center">
+                        <div class="mt-5">
+                            <div class="mb-2"><i class="bi-volume-up fs-1 text-primary"></i></div>
+                            <h3 class="h4 mb-2">Quiet Music</h3>
+                            <p class="text-muted mb-0">We play pleasant and not-too-loud music for your pleasure.</p>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 text-center">
+                        <div class="mt-5">
+                            <div class="mb-2"><i class="bi-heart fs-1 text-primary"></i></div>
+                            <h3 class="h4 mb-2">Excellet Food</h3>
+                            <p class="text-muted mb-0">Our food is prepared from the freshest and best avaible ingridients.</p>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 text-center">
+                        <div class="mt-5">
+                            <div class="mb-2"><i class="bi-laptop fs-1 text-primary"></i></div>
+                            <h3 class="h4 mb-2">On-Line Booking</h3>
+                            <p class="text-muted mb-0">You can easyly book yout table with us.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Portfolio -->
+        <div id="portfolio">
+            <div class="container-fluid p-0">
+                <div class="row g-0">
+                    <div class="col-lg-4 col-sm-6">
+                        <a class="portfolio-box" href="{% static 'bookings/assets/img/location/fullsize/hamburger-with-beef-meat-burger-fresh-vegetables-dark-surface.webp' %}">
+                            <img class="img-fluid" src="{% static 'bookings/assets/img/location/thumbnails/hamburger-with-beef-meat-burger-fresh-vegetables-dark-surface.webp'%}" alt="..." />
+                            <div class="portfolio-box-caption">
+                                <div class="project-category text-white-50">Menu</div>
+                                <div class="project-name">Gourmet Hamburgers</div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-lg-4 col-sm-6">
+                        <a class="portfolio-box" href="{% static 'bookings/assets/img/location/fullsize/happy-waiter-serving-food-group-cheerful-friends-pub.webp' %}">
+                            <img class="img-fluid" src="{% static 'bookings/assets/img/location/thumbnails/happy-waiter-serving-food-group-cheerful-friends-pub.webp' %}" alt="..." />
+                            <div class="portfolio-box-caption">
+                                <div class="project-category text-white-50">Service</div>
+                                <div class="project-name">Good, Freshly Prepared Food</div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-lg-4 col-sm-6">
+                        <a class="portfolio-box" href="{% static 'bookings/assets/img/location/fullsize/penne-pasta-tomato-sauce-with-chicken-tomatoes-wooden-table.webp'%}">
+                            <img class="img-fluid" src="{% static 'bookings/assets/img/location/thumbnails/penne-pasta-tomato-sauce-with-chicken-tomatoes-wooden-table.webp'%}" alt="..." />
+                            <div class="portfolio-box-caption">
+                                <div class="project-category text-white-50">Menu</div>
+                                <div class="project-name">Chicken Pene Pasta</div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-lg-4 col-sm-6">
+                        <a class="portfolio-box" href="{% static 'bookings/assets/img/location/fullsize/penne-pasta-with-meatballs-tomato-sauce-white-bowl.webp'%}">
+                            <img class="img-fluid" src="{% static 'bookings/assets/img/location/thumbnails/penne-pasta-with-meatballs-tomato-sauce-white-bowl.webp'%}" alt="..." />
+                            <div class="portfolio-box-caption">
+                                <div class="project-category text-white-50">Menu</div>
+                                <div class="project-name">Pene Pasta with Meetballs</div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-lg-4 col-sm-6">
+                        <a class="portfolio-box" href="{% static 'bookings/assets/img/location/fullsize/waiter-with-protective-face-mask-serving-coffee-customers-pub.webp'%}">
+                            <img class="img-fluid" src="{% static 'bookings/assets/img/location/thumbnails/waiter-with-protective-face-mask-serving-coffee-customers-pub.webp'%}" alt="..." />
+                            <div class="portfolio-box-caption">
+                                <div class="project-category text-white-50">Service</div>
+                                <div class="project-name">Safe, Clean, Hygenic Place</div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-lg-4 col-sm-6">
+                        <a class="portfolio-box" href="{% static 'bookings/assets/img/location/fullsize/young-waitress-assisting-woman-with-choosing-order-from-menu-bar.webp'%}">
+                            <img class="img-fluid" src="{% static 'bookings/assets/img/location/thumbnails/young-waitress-assisting-woman-with-choosing-order-from-menu-bar copy.webp'%}" alt="..." />
+                            <div class="portfolio-box-caption p-3">
+                                <div class="project-category text-white-50">Service</div>
+                                <div class="project-name">Always Warm and Welcoming Atmosphere</div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Call to action -->
+        <section class="page-section bg-dark text-white">
+            <div class="container px-4 px-lg-5 text-center">
+                <h2 class="mb-4">Download our Menu</h2>
+                <a class="btn btn-light btn-xl" href="#">Download Now!</a>
+            </div>
+        </section>
+{% endblock %}
