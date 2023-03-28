@@ -35,6 +35,13 @@ DEBUG = os.environ.get('DEV_ENV') == 'True'
 ALLOWED_HOSTS = []
 ALLOWED_HOSTS.append(os.environ.get('HOST_NAME'))
 
+# AllAuth Requirements and Settings
+SITE_ID = 1
+ACCOUNT_EMAIL_VERIFICATION = 'none'
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
+
+
 
 # Application definition
 
@@ -44,7 +51,11 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'django.contrib.sites',
     'django.contrib.staticfiles',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
     'bookings',
 ]
 
