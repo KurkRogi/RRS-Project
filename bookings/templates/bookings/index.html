@@ -10,7 +10,7 @@
         </div>
         <div class="col-lg-8 align-self-baseline">
             <p class="text-white-75 mb-5">Bustling, fun, excellent and friendly atmosphere.<br>There's no better place to be every evenening of the week</p>
-            <a class="btn btn-primary btn-xl" href="#about">Book Now</a>
+            <a class="btn btn-primary btn-xl" href="{%url 'bookings:book_page'%}/?day={% now 'd'%}&month={% now 'm'%}&year={% now 'Y' %}">Book Now</a>
         </div>
     </div>
 </div>
@@ -119,7 +119,7 @@
         <section class="page-section bg-dark text-white">
             <div class="container px-4 px-lg-5 text-center">
                 <h2 class="mb-4">Download our Menu</h2>
-                <a class="btn btn-light btn-xl" href="#">Download Now!</a>
+                <a class="btn btn-light btn-xl" href="{% static 'bookings/assets/img/The_Place_menu.pdf'%}" download="The Place menu.pdf">Download Now!</a>
             </div>
         </section>
 {% endblock %}
