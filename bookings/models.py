@@ -31,7 +31,7 @@ class Booking(models.Model):
     tables = models.ManyToManyField(Table, blank=True)
 
     def __str__(self):
-        return f'{self.name} booked on {self.date.strftime("%-d %B %Y")}'
+        return f'{self.name} booked for {self.date.strftime("%-d %B %Y")}'
 
     class Meta:
         ordering = ['date', 'time']

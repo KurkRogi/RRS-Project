@@ -23,6 +23,7 @@
         <link href="https://cdnjs.cloudflare.com/ajax/libs/SimpleLightbox/2.1.0/simpleLightbox.min.css" rel="stylesheet" />
         <!-- Core theme CSS (includes Bootstrap)-->
         <link href="{% static 'bookings/css/styles.css' %}" rel="stylesheet" />
+        <link href="{% static 'bookings/css/customized-styles.css' %}" rel="stylesheet" />
     </head>
     <body id="page-top">
         <!-- Navigation-->
@@ -32,9 +33,12 @@
                 <button class="navbar-toggler navbar-toggler-right" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
                 <div class="collapse navbar-collapse" id="navbarResponsive">
                     <ul class="navbar-nav ms-auto my-2 my-lg-0">
+                        {% if request.path != '/' %}
+                            <li class="nav-item"><a class="nav-link" href="{%url 'bookings:main_page'%}">Home</a></li>
+                        {% endif %}
                         <li class="nav-item"><a class="nav-link" href="{%url 'bookings:main_page'%}#services">About</a></li>
                         <li class="nav-item"><a class="nav-link" href="{%url 'bookings:main_page'%}#portfolio">Menu</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{%url 'bookings:book_page'%}/?day={% now 'd'%}&month={% now 'm'%}&year={% now 'Y' %}">Book</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{%url 'bookings:book_page'%}/?date={% now "Y-m-d"%}">Book</a></li>
                         {% if user.is_authenticated %}
                             <li class="nav-item"><a class="nav-link" href="{% url 'account_logout' %}">Logout</a></li>
                         {% else %}

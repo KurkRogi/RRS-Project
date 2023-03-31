@@ -1,27 +1,81 @@
 {% extends 'bookings/base.html' %}
 
 {% block header %}
-<div class="container h-100">
-    <div class="row gx-4 gx-lg-5 mb-5 h-100 justify-content-center align-items-center">
-        <div class="col-lg-6 text-white">
-            <form action="{% url 'bookings:book_page' %}" method="post">
-                {% csrf_token %}
-                {% for field in form %}
-                    <div class="mb-3">
-                        {{ field.errors }}
-                        {{ field.label_tag }}
-                        {{ field }}
+    <div class="container h-100">
+        <div class="row h-100 align-items-center justify-content-center">
+            <div class="col-12 col-md-6">
+                <div class="container text-white">
+                    <div class="row gy-3">
+                        <div class="col-12 text-center">
+                            <h3>Make a new booking</h3>
+                            <h5>or&nbsp;&nbsp;<span class="btn btn-outline-primary">check out</span>&nbsp;&nbsp;your previous reservations</h5>
+                        </div>
+                        <div class="col-12">
+                            <form action="{% url 'bookings:book_page' %}" method="post">
+                                {% csrf_token %}
+                                {% for field in form %}
+                                    <div class="mb-3">
+                                        {{ field.errors }}
+                                        {{ field.label_tag }}
+                                        {{ field }}
+                                    </div>
+                                {% endfor %}
+                                <!-- Submit Button-->
+                                <div class="d-grid"><button class="btn btn-primary btn-xl" id="submitButton" type="submit">Book</button></div>
+                            </form>
+                        </div>
                     </div>
-                    {% comment %} <div class="form-floating mb-3">
-                        <input class="form-control" id="name" type="text" placeholder="Enter your name..." data-sb-validations="required" />
-                        <label for="name">Full name</label>
-                        <div class="invalid-feedback" data-sb-feedback="name:required">A name is required.</div>
-                    </div> {% endcomment %}
-                {% endfor %}
-                <!-- Submit Button-->
-                <div class="d-grid"><button class="btn btn-primary btn-xl" id="submitButton" type="submit">Book</button></div>
-            </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <h3>this is a content block</h3>
+            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Exercitationem sit rem amet accusamus ipsam distinctio quidem officia corrupti delectus animi.</p>
         </div>
     </div>
 </div>
+<script>
+    const date_field = document.getElementById('id_date');
+    date_field.addEventListener('change', check_available_tables);
+    const time_field = document.getElementById('id_time');
+    time_field.addEventListener('change', check_available_tables);
+    window.addEventListener('load', check_available_tables);
+
+    function check_available_tables(event) {
+        // event.preventDefault();
+        const field = document.getElementById('id_tables');
+        const button = document.getElementById('submitButton')  ;  
+        const date = date_field.value;
+        const time = time_field.value;
+        fetch(`{% url "bookings:tables_API" %}?date=${date}&time=${time}`, {
+            headers: {
+                'Accept':'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        }).then(response => {
+            return response.json()
+        }).then(data => {
+            console.log(data)
+            if (data.length > 0) {
+                field.innerHTML ="";
+                field.removeAttribute("disabled");
+                button.removeAttribute("disabled");
+                for (i in data) {
+                    field.innerHTML += `<option value="${data[i].id}">Table ${data[i].name} (${data[i].sits}) ${data[i].description}</option>`
+                }
+            } else {
+                field.setAttribute("disabled", "");
+                button.setAttribute("disabled", "");
+                field.innerHTML = '<option value="0">No tables available!</option>'
+            }
+        }).catch(error => {
+            console.error('Error: ', error)
+        })
+    }
+</script>
 {% endblock %}
