@@ -33,5 +33,13 @@ class Booking(models.Model):
     def __str__(self):
         return f'{self.name} booked for {self.date.strftime("%-d %B %Y")}'
 
+    def get_tables_names(self):
+        q = self.tables.all()
+        r = ""
+        for i in q:
+            r += f"{i.name} ({i.sits}) | "
+        return r
+
+
     class Meta:
         ordering = ['date', 'time']

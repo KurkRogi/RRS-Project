@@ -8,7 +8,9 @@
                     <div class="row gy-3">
                         <div class="col-12 text-center">
                             <h3>Make a new booking</h3>
-                            <h5>or&nbsp;&nbsp;<span class="btn btn-outline-primary">check out</span>&nbsp;&nbsp;your previous reservations</h5>
+                            {% if bookings %}
+                                <h5>or&nbsp;&nbsp;<a href="#previous_bookings"><span class="btn btn-outline-primary">check out</span></a>&nbsp;&nbsp;previous reservations</h5>
+                            {% endif %}
                         </div>
                         <div class="col-12">
                             <form action="{% url 'bookings:book_page' %}" method="post">
@@ -21,7 +23,7 @@
                                     </div>
                                 {% endfor %}
                                 <!-- Submit Button-->
-                                <div class="d-grid"><button class="btn btn-primary btn-xl" id="submitButton" type="submit">Book</button></div>
+                                <div class="d-grid"><button class="btn btn-primary btn-xl" id="submitButton" type="submit"> <i class="bi bi-check-square"></i>&nbsp; Book</button></div>
                             </form>
                         </div>
                     </div>
@@ -29,53 +31,82 @@
             </div>
         </div>
     </div>
+    <script>
+        const date_field = document.getElementById('id_date');
+        date_field.addEventListener('change', check_available_tables);
+        const time_field = document.getElementById('id_time');
+        time_field.addEventListener('change', check_available_tables);
+        window.addEventListener('load', check_available_tables);
+    
+        function check_available_tables(event) {
+            // event.preventDefault();
+            const field = document.getElementById('id_tables');
+            const button = document.getElementById('submitButton')  ;  
+            const date = date_field.value;
+            const time = time_field.value;
+            fetch(`{% url "bookings:tables_API" %}?date=${date}&time=${time}`, {
+                headers: {
+                    'Accept':'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            }).then(response => {
+                return response.json()
+            }).then(data => {
+                if (data.length > 0) {
+                    field.innerHTML ="";
+                    field.removeAttribute("disabled");
+                    button.removeAttribute("disabled");
+                    for (i in data) {
+                        field.innerHTML += `<option value="${data[i].id}">Table ${data[i].name} (${data[i].sits}) ${data[i].description}</option>`
+                    }
+                } else {
+                    field.setAttribute("disabled", "");
+                    button.setAttribute("disabled", "");
+                    field.innerHTML = '<option value="0">No tables available!</option>'
+                }
+            }).catch(error => {
+                console.error('Error: ', error)
+            })
+        }
+    </script>
 {% endblock %}
 {% block content %}
-<div class="container">
-    <div class="row">
-        <div class="col">
-            <h3>this is a content block</h3>
-            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Exercitationem sit rem amet accusamus ipsam distinctio quidem officia corrupti delectus animi.</p>
+{% if bookings %}
+    <div class="container" id="previous_bookings">
+        <div class="row my-3">
+            <div class="col">
+                <table class="table tables-stripped">
+                    <thead>
+                        <tr>
+                            {% if user.is_superuser %}
+                                <th scope="col">Name</th>
+                            {% endif %}
+                            <th scope="col">Date</th>
+                            <th scope="col">Time</th>
+                            <th scope="col">Tables</th>
+                            <th class="text-center" scope="col">Edit</th>
+                            <th class="text-center" scope="col">Cancel</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for booking in bookings %}
+                            <tr>
+                                {% if user.is_superuser %}
+                                    <td>{{ booking.name }}</td>
+                                {% endif %}
+                                <td>{{ booking.date|date:"l jS F y"}}</td>
+                                <td>{{ booking.time }}</td>
+                                <td>{{ booking.tables }}</td>
+                                {% comment %} <td class="text-center"><a href="/edit/1"><i class="bi bi-pencil-square"></i></a></td>
+                                <td class="text-center"><a href="/delete/2"><i class="bi bi-x-circle-fill"></i></a></td> {% endcomment %}
+                                <td class="text-center"><a href="{% url 'bookings:edit_booking' booking.id%}"><i class="bi bi-pencil-square"></i></a></td>
+                                <td class="text-center"><a href="{% url 'bookings:delete_booking' booking.id%}"><i class="bi bi-x-circle-fill"></i></a></td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
-</div>
-<script>
-    const date_field = document.getElementById('id_date');
-    date_field.addEventListener('change', check_available_tables);
-    const time_field = document.getElementById('id_time');
-    time_field.addEventListener('change', check_available_tables);
-    window.addEventListener('load', check_available_tables);
-
-    function check_available_tables(event) {
-        // event.preventDefault();
-        const field = document.getElementById('id_tables');
-        const button = document.getElementById('submitButton')  ;  
-        const date = date_field.value;
-        const time = time_field.value;
-        fetch(`{% url "bookings:tables_API" %}?date=${date}&time=${time}`, {
-            headers: {
-                'Accept':'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        }).then(response => {
-            return response.json()
-        }).then(data => {
-            console.log(data)
-            if (data.length > 0) {
-                field.innerHTML ="";
-                field.removeAttribute("disabled");
-                button.removeAttribute("disabled");
-                for (i in data) {
-                    field.innerHTML += `<option value="${data[i].id}">Table ${data[i].name} (${data[i].sits}) ${data[i].description}</option>`
-                }
-            } else {
-                field.setAttribute("disabled", "");
-                button.setAttribute("disabled", "");
-                field.innerHTML = '<option value="0">No tables available!</option>'
-            }
-        }).catch(error => {
-            console.error('Error: ', error)
-        })
-    }
-</script>
+{% endif %}
 {% endblock %}

@@ -5,7 +5,7 @@ import datetime
 from bookings.forms import UserBookingForm, AdminBookingForm
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
-from .models import Table
+from .models import Table, Booking
 # from django.core import serializers
 
 # Create your views here.
@@ -28,13 +28,6 @@ def check_available_tables(request):
         get_object_or_404(Booking, time=time)
 
     data = list(Table.objects.all().difference(Table.objects.filter(booking__date=date, booking__time=time)).values())
-    # response = []
-    # for i in range(queryset.count()):
-    #     response.append({
-    #         'value': queryset[i]['id'],
-    #         'text': f'{queryset[i]["name"]} ({queryset[i]["sits"]}) {queryset[i]["description"]}'
-    #         }
-    #     )
     
     return JsonResponse(data, safe=False)
 
@@ -42,9 +35,10 @@ def check_available_tables(request):
 def book(request):
     
     today = timezone.now()
+    admin = request.user.is_superuser or request.user.is_staff
 
     if request.method == 'GET':
-        
+
         date = request.GET.get('date', today.day)
         
         # Check if the date in the link is not old or malicious
@@ -62,12 +56,36 @@ def book(request):
         min_date = date.strftime('%Y-%m-%d')
         form.fields['date'].widget.attrs.update({'min': min_date})
 
+        if admin:
+            bookings = Booking.objects.all()
+        else:
+            bookings = Booking.objects.filter(
+                name=request.user.username,
+                date__gte=today)
+
+        data=[]
+
+        for i in bookings:
+            list_of_tables=i.get_tables_names()
+            time = Booking.BOOKING_TIMES[i.time][1]
+            
+            data.append({
+                'id': i.id,
+                'name': i.name,
+                'date': i.date,
+                'time': time,
+                'tables': list_of_tables,
+            })
+
+        print(bookings)
         # send the form away!
-        return render(request, 'bookings/book.html', {'form': form})
+        return render(
+            request, 'bookings/book.html',
+            {'form': form, 'bookings': data})
 
     elif request.method == 'POST':
 
-        if request.user.is_superuser or request.user.is_staff:
+        if admin:
             form = AdminBookingForm(request.POST)
             if form.is_valid():
                 form.save()
@@ -81,3 +99,8 @@ def book(request):
 
         return HttpResponseRedirect(reverse('bookings:book_page'))
 
+def edit_booking(request, id):
+    return HttpResponse(f'Edit booking {id}')
+
+def delete_booking(request, id):
+    return HttpResponse(f'Delete booking {id}')
