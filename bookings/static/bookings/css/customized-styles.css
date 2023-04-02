@@ -1,0 +1,7 @@
+.login .errorlist {
+	width: 70%;
+	margin: 1rem auto;
+	list-style-type: none;
+	padding: 0;
+    color: rgb(var(--bs-warning-rgb));
+}

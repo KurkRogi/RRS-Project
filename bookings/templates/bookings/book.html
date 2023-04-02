@@ -3,13 +3,17 @@
 {% block header %}
     <div class="container h-100">
         <div class="row h-100 align-items-center justify-content-center">
-            <div class="col-12 col-md-6">
+            <div class="col-12 col-md-10 col-lg-8 col-xl-6">
                 <div class="container text-white">
                     <div class="row gy-3">
                         <div class="col-12 text-center">
                             <h3>Make a new booking</h3>
                             {% if bookings %}
-                                <h5>or&nbsp;&nbsp;<a href="#previous_bookings"><span class="btn btn-outline-primary">check out</span></a>&nbsp;&nbsp;previous reservations</h5>
+                                {% if user.is_superuser %}
+                                    <h5>or&nbsp;&nbsp;<a href="#previous_bookings"><span class="btn btn-outline-primary">check out</span></a>&nbsp;&nbsp;other reservations</h5>
+                                {% else %}
+                                    <h5>or&nbsp;&nbsp;<a href="#previous_bookings"><span class="btn btn-outline-primary">check out</span></a>&nbsp;&nbsp;your previous reservations</h5>
+                                {% endif %}
                             {% endif %}
                         </div>
                         <div class="col-12">
@@ -73,19 +77,25 @@
 {% block content %}
 {% if bookings %}
     <div class="container" id="previous_bookings">
-        <div class="row my-3">
-            <div class="col">
-                <table class="table tables-stripped">
+        <div class="row my-3 justify-content-center">
+            {% comment %} <div class="col"> {% endcomment %}
+                <table class="table table-striped w-auto">
                     <thead>
-                        <tr>
+                        <tr class="table-primary">
                             {% if user.is_superuser %}
                                 <th scope="col">Name</th>
-                            {% endif %}
-                            <th scope="col">Date</th>
-                            <th scope="col">Time</th>
-                            <th scope="col">Tables</th>
+                                <th scope="col" >Date</th>
+                                <th scope="col" class="text-center">Time</th>
+                                <th scope="col">Tables</th>
+                                <th class="text-center" scope="col">Edit</th>
+                                <th class="text-center" scope="col">Cancel</th>
+                            {% else %}
+                            <th scope="col" class="px-5">Date</th>
+                            <th scope="col" class="text-center px-5">Time</th>
+                            <th scope="col" class="px-5">Tables</th>
                             <th class="text-center" scope="col">Edit</th>
                             <th class="text-center" scope="col">Cancel</th>
+                            {% endif %}
                         </tr>
                     </thead>
                     <tbody>
@@ -93,19 +103,23 @@
                             <tr>
                                 {% if user.is_superuser %}
                                     <td>{{ booking.name }}</td>
+                                    <td>{{ booking.date|date:"l jS F y"}}</td>
+                                    <td class="text-center">{{ booking.time }}</td>
+                                    <td>{{ booking.tables }}</td>
+                                    <td class="text-center"><a href="{% url 'bookings:edit_booking' booking.id%}"><i class="bi bi-pencil-square"></i></a></td>
+                                    <td class="text-center"><a href="{% url 'bookings:delete_booking' booking.id%}"><i class="bi bi-x-circle-fill"></i></a></td>
+                                {% else %}
+                                    <td class="px-5">{{ booking.date|date:"l jS F y"}}</td>
+                                    <td class="text-center px-5">{{ booking.time }}</td>
+                                    <td class="px-5">{{ booking.tables }}</td>
+                                    <td class="text-center"><a href="{% url 'bookings:edit_booking' booking.id%}"><i class="bi bi-pencil-square"></i></a></td>
+                                    <td class="text-center"><a href="{% url 'bookings:delete_booking' booking.id%}"><i class="bi bi-x-circle-fill"></i></a></td>
                                 {% endif %}
-                                <td>{{ booking.date|date:"l jS F y"}}</td>
-                                <td>{{ booking.time }}</td>
-                                <td>{{ booking.tables }}</td>
-                                {% comment %} <td class="text-center"><a href="/edit/1"><i class="bi bi-pencil-square"></i></a></td>
-                                <td class="text-center"><a href="/delete/2"><i class="bi bi-x-circle-fill"></i></a></td> {% endcomment %}
-                                <td class="text-center"><a href="{% url 'bookings:edit_booking' booking.id%}"><i class="bi bi-pencil-square"></i></a></td>
-                                <td class="text-center"><a href="{% url 'bookings:delete_booking' booking.id%}"><i class="bi bi-x-circle-fill"></i></a></td>
                             </tr>
                         {% endfor %}
                     </tbody>
                 </table>
-            </div>
+            {% comment %} </div> {% endcomment %}
         </div>
     </div>
 {% endif %}

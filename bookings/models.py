@@ -35,9 +35,11 @@ class Booking(models.Model):
 
     def get_tables_names(self):
         q = self.tables.all()
+        l = len(q)
         r = ""
-        for i in q:
-            r += f"{i.name} ({i.sits}) | "
+        for i in range(l):
+            r += f"{q[i].name} ({q[i].sits})"
+            r += " | " if i < l-1 else ""
         return r
 
 
