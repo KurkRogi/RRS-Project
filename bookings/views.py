@@ -52,7 +52,7 @@ def book(request):
 
         # prepare a form with date as a starting point
         initial = {'date': date}
-        form = AdminBookingForm(initial=initial) if request.user.is_superuser or request.user.is_staff else UserBookingForm(initial=initial)
+        form = AdminBookingForm(initial=initial) if admin else UserBookingForm(initial=initial)
         min_date = date.strftime('%Y-%m-%d')
         form.fields['date'].widget.attrs.update({'min': min_date})
 
@@ -63,16 +63,19 @@ def book(request):
                 name=request.user.username,
                 date__gte=today)
 
-        data=[]
+        data = []
 
-        for i in bookings:
-            list_of_tables=i.get_tables_names()
-            time = Booking.BOOKING_TIMES[i.time][1]
+        for b in bookings:
+
+            list_of_tables = b.get_tables_names()
+            # seraching in list of tuples with generator expression technique from:
+            # https://stackoverflow.com/questions/2917372/how-to-search-a-list-of-tuples-in-python
+            time = Booking.BOOKING_TIMES[next((i for i, v in enumerate(Booking.BOOKING_TIMES) if v[0] == b.time), 0)][1]
             
             data.append({
-                'id': i.id,
-                'name': i.name,
-                'date': i.date,
+                'id': b.id,
+                'name': b.name,
+                'date': b.date,
                 'time': time,
                 'tables': list_of_tables,
             })
@@ -99,8 +102,10 @@ def book(request):
 
         return HttpResponseRedirect(reverse('bookings:book_page'))
 
+
 def edit_booking(request, id):
     return HttpResponse(f'Edit booking {id}')
+
 
 def delete_booking(request, id):
     return HttpResponse(f'Delete booking {id}')
