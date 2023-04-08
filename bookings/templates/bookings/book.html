@@ -35,92 +35,148 @@
             </div>
         </div>
     </div>
+    <!-- Confirmation Modal -->
+    <div class="modal fade" tabindex="-1" id="confirmModal" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete a booking</h5>
+            </div>
+            <div class="modal-body">
+                <p>You are about to delete booking on <span>date</span> for <span>time</span></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <a href="">
+                    <button type="button" class="btn btn-primary">Delete</button>
+                </a>
+            </div>
+            </div>
+        </div>
+        </div>
     <script>
-        const date_field = document.getElementById('id_date');
-        date_field.addEventListener('change', check_available_tables);
-        const time_field = document.getElementById('id_time');
-        time_field.addEventListener('change', check_available_tables);
-        window.addEventListener('load', check_available_tables);
-    
-        function check_available_tables(event) {
-            // event.preventDefault();
-            const field = document.getElementById('id_tables');
-            const button = document.getElementById('submitButton')  ;  
-            const date = date_field.value;
-            const time = time_field.value;
-            fetch(`{% url "bookings:tables_API" %}?date=${date}&time=${time}`, {
-                headers: {
-                    'Accept':'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            }).then(response => {
-                return response.json()
-            }).then(data => {
-                if (data.length > 0) {
-                    field.innerHTML ="";
-                    field.removeAttribute("disabled");
-                    button.removeAttribute("disabled");
-                    for (i in data) {
-                        field.innerHTML += `<option value="${data[i].id}">Table ${data[i].name} (${data[i].sits}) ${data[i].description}</option>`
+        // Handling booking form interactivity
+            const api_url = "{% url 'bookings:tables_API' %}";
+            console.log(api_url);
+            // Attach handlers to form's inputs
+            const date_field = document.getElementById('id_date');
+            const time_field = document.getElementById('id_time');
+            date_field.addEventListener('change', update_available_tables);
+            time_field.addEventListener('change', update_available_tables);
+            window.addEventListener('load', update_available_tables);
+
+            function update_available_tables() {
+                const tablesField = document.getElementById('id_tables');
+                const button = document.getElementById('submitButton');  
+                const date = date_field.value;
+                const time = time_field.value;
+                fetch(`${api_url}?date=${date}&time=${time}`, {
+                    headers: {
+                        'Accept':'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
                     }
-                } else {
-                    field.setAttribute("disabled", "");
-                    button.setAttribute("disabled", "");
-                    field.innerHTML = '<option value="0">No tables available!</option>'
-                }
-            }).catch(error => {
-                console.error('Error: ', error)
+                }).then(response => {
+                    return response.json()
+                }).then(data => {
+                    // Clear all the options first
+                    while (tablesField[0]) {
+                        tablesField[0] = null
+                    }
+                    if (data.length > 0) {
+                        tablesField.removeAttribute("disabled");
+                        button.removeAttribute("disabled");
+                        for (i in data) {
+                            tablesField.appendChild(new Option(`Table ${data[i].name} (${data[i].sits}) ${data[i].description}`, `${data[i].id}`))
+                        }
+                    } else {
+                        tablesField.setAttribute("disabled", "");
+                        button.setAttribute("disabled", "");
+                        tablesField.appendChild(new Option(`No tables available!`));
+                    }
+                }).catch(error => {
+                    console.error('Error: ', error)
+                })
+            }
+        // Handle delete confirmation dialog
+            modal = document.getElementById("confirmModal");
+            modal.addEventListener('show.bs.modal', function (e){
+                //get the element which called the dialog
+                var button = e.relatedTarget;
+                //update dialog 
+                modal.querySelector(".modal-title").textContent = `Delete a booking ${button.dataset.id}`;
+                modal.querySelector(".modal-body span:nth-of-type(1)").textContent = `${button.dataset.date}`;
+                modal.querySelector(".modal-body span:nth-of-type(2)").textContent = `${button.dataset.time}`;
+                modal.querySelector(".modal-footer a").setAttribute("href", button.dataset.url);
             })
-        }
     </script>
 {% endblock %}
 {% block content %}
-{% if bookings %}
-    <div class="container" id="previous_bookings">
-        <div class="row my-3 justify-content-center">
-            {% comment %} <div class="col"> {% endcomment %}
-                <table class="table table-striped w-auto">
-                    <thead>
-                        <tr class="table-primary">
-                            {% if user.is_superuser %}
-                                <th scope="col">Name</th>
-                                <th scope="col" >Date</th>
-                                <th scope="col" class="text-center">Time</th>
-                                <th scope="col">Tables</th>
+    {% if bookings %}
+        <div class="container" id="previous_bookings">
+            <div class="row my-3 justify-content-center">
+                    <table class="table table-striped w-auto">
+                        <thead>
+                            <tr class="table-primary">
+                                {% if user.is_superuser %}
+                                    <th scope="col">Name</th>
+                                    <th scope="col" >Date</th>
+                                    <th scope="col" class="text-center">Time</th>
+                                    <th scope="col">Tables</th>
+                                    <th class="text-center" scope="col">Edit</th>
+                                    <th class="text-center" scope="col">Cancel</th>
+                                {% else %}
+                                <th scope="col" class="px-5">Date</th>
+                                <th scope="col" class="text-center px-5">Time</th>
+                                <th scope="col" class="px-5">Tables</th>
                                 <th class="text-center" scope="col">Edit</th>
                                 <th class="text-center" scope="col">Cancel</th>
-                            {% else %}
-                            <th scope="col" class="px-5">Date</th>
-                            <th scope="col" class="text-center px-5">Time</th>
-                            <th scope="col" class="px-5">Tables</th>
-                            <th class="text-center" scope="col">Edit</th>
-                            <th class="text-center" scope="col">Cancel</th>
-                            {% endif %}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for booking in bookings %}
-                            <tr>
-                                {% if user.is_superuser %}
-                                    <td>{{ booking.name }}</td>
-                                    <td>{{ booking.date|date:"l jS F y"}}</td>
-                                    <td class="text-center">{{ booking.time }}</td>
-                                    <td>{{ booking.tables }}</td>
-                                    <td class="text-center"><a href="{% url 'bookings:edit_booking' booking.id%}"><i class="bi bi-pencil-square"></i></a></td>
-                                    <td class="text-center"><a href="{% url 'bookings:delete_booking' booking.id%}"><i class="bi bi-x-circle-fill"></i></a></td>
-                                {% else %}
-                                    <td class="px-5">{{ booking.date|date:"l jS F y"}}</td>
-                                    <td class="text-center px-5">{{ booking.time }}</td>
-                                    <td class="px-5">{{ booking.tables }}</td>
-                                    <td class="text-center"><a href="{% url 'bookings:edit_booking' booking.id%}"><i class="bi bi-pencil-square"></i></a></td>
-                                    <td class="text-center"><a href="{% url 'bookings:delete_booking' booking.id%}"><i class="bi bi-x-circle-fill"></i></a></td>
                                 {% endif %}
                             </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            {% comment %} </div> {% endcomment %}
+                        </thead>
+                        <tbody>
+                            {% for booking in bookings %}
+                                <tr>
+                                    {% if user.is_superuser %}
+                                        <td>{{ booking.name }}</td>
+                                        <td>{{ booking.date|date:"l jS F y"}}</td>
+                                        <td class="text-center">{{ booking.time }}</td>
+                                        <td>{{ booking.tables }}</td>
+                                        <td class="text-center"><a href="{% url 'bookings:edit_booking' booking.id%}"><i class="bi bi-pencil-square"></i></a></td>
+                                        <td class="text-center">
+                                            {% comment %} <a href="{% url 'bookings:delete_booking' booking.id%}" data-bs-toggle="modal" data-bs-target="#confirmModal" data-bs-whatever="@mdo"> {% endcomment %}
+                                            <a href="#"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#confirmModal"
+                                            data-id="{{ booking.id }}"
+                                            data-date="{{ booking.date|date:"l jS F y"}}"
+                                            data-time="{{ booking.time }}"
+                                            data-bs-url="{% url 'bookings:delete_booking' booking.id%}">
+                                                <i class="bi bi-x-circle-fill" ></i>
+                                            </a>
+                                        </td>
+                                    {% else %}
+                                        <td class="px-5">{{ booking.date|date:"l jS F y"}}</td>
+                                        <td class="text-center px-5">{{ booking.time }}</td>
+                                        <td class="px-5">{{ booking.tables }}</td>
+                                        <td class="text-center"><a href="{% url 'bookings:edit_booking' booking.id%}"><i class="bi bi-pencil-square"></i></a></td>
+                                        <td class="text-center">
+                                            {% comment %} <a href="{% url 'bookings:delete_booking' booking.id%}" data-bs-toggle="modal" data-bs-target="#confirmModal" data-bs-whatever="@mdo"> {% endcomment %}
+                                            <a href="#"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#confirmModal"
+                                            data-id="{{ booking.id }}"
+                                            data-date="{{ booking.date|date:"l jS F y"}}"
+                                            data-time="{{ booking.time }}"
+                                            data-url="{% url 'bookings:delete_booking' booking.id%}">
+                                                <i class="bi bi-x-circle-fill"></i>
+                                            </a>
+                                        </td>
+                                    {% endif %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+            </div>
         </div>
-    </div>
-{% endif %}
+    {% endif %}
 {% endblock %}
