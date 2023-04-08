@@ -1,59 +1,71 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponse, HttpResponseRedirect, Http404, JsonResponse
+from django.shortcuts import (
+    render, redirect, get_object_or_404, get_list_or_404)
+from django.http import (
+    HttpResponse, HttpResponseRedirect, Http404, JsonResponse)
 from django.utils import timezone
 import datetime
 from bookings.forms import UserBookingForm, AdminBookingForm
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from .models import Table, Booking
-# from django.core import serializers
 
-# Create your views here.
 
 def index(request):
     context = {}
     return render(request, 'bookings/index.html', context)
 
+
 def check_available_tables(request):
     date = request.GET.get('date')
     time = request.GET.get('time')
 
-    # Validate date
+    # Check if date is real
     try:
-        date = timezone.make_aware(datetime.datetime.strptime(date, '%Y-%m-%d'))
-    except:
-        raise Http404(f'Wrong Date: {date}')
-    
-    # Validate time
-        get_object_or_404(Booking, time=time)
+        date = timezone.make_aware(
+            datetime.datetime.strptime(date, '%Y-%m-%d'))
+    except ValueError:
+        print('DATE')
+        return JsonResponse([{}], safe=False)
 
-    data = list(Table.objects.all().difference(Table.objects.filter(booking__date=date, booking__time=time)).values())
-    
+    # Check if time is real
+    try:
+        next((t for t in Booking.BOOKING_TIMES if t[0] == int(time)))
+    except (StopIteration, TypeError, ValueError) as error:
+        print('TIME ', time)
+        print('ERROR ', error)
+        print('REQUEST', request)
+        return JsonResponse([{}], safe=False)
+
+    data = list(Table.objects.all().difference(
+        Table.objects.filter(booking__date=date, booking__time=time))
+        .values())
+
     return JsonResponse(data, safe=False)
+
 
 @login_required
 def book(request):
-    
+
     today = timezone.now()
     admin = request.user.is_superuser or request.user.is_staff
 
     if request.method == 'GET':
 
-        date = request.GET.get('date', today.day)
-        
+        date = request.GET.get('date', today.strftime('Y-m-d'))
+
         # Check if the date in the link is not old or malicious
-
         try:
-            date = timezone.make_aware(datetime.datetime.strptime(date, 'Y-m-d'))
-        except:
+            date = timezone.make_aware(
+                datetime.datetime.strptime(date, '%Y-%m-%d'))
+        except ValueError:
             date = today
-        else:
-            date = today if date < today else date
-
+        
         # prepare a form with date as a starting point
         initial = {'date': date}
-        form = AdminBookingForm(initial=initial) if admin else UserBookingForm(initial=initial)
-        min_date = date.strftime('%Y-%m-%d')
+        form = (
+            AdminBookingForm(initial=initial) if admin
+            else UserBookingForm(initial=initial))
+        min_date = today.strftime('%Y-%m-%d')
         form.fields['date'].widget.attrs.update({'min': min_date})
 
         if admin:
@@ -68,10 +80,13 @@ def book(request):
         for b in bookings:
 
             list_of_tables = b.get_tables_names()
-            # seraching in list of tuples with generator expression technique from:
+            # seraching in list of tuples with
+            # generator expression technique from:
             # https://stackoverflow.com/questions/2917372/how-to-search-a-list-of-tuples-in-python
-            time = Booking.BOOKING_TIMES[next((i for i, v in enumerate(Booking.BOOKING_TIMES) if v[0] == b.time), 0)][1]
-            
+            time = Booking.BOOKING_TIMES[next((
+                i for i, v in enumerate(Booking.BOOKING_TIMES)
+                if v[0] == b.time), 0)][1]
+
             data.append({
                 'id': b.id,
                 'name': b.name,
@@ -80,7 +95,6 @@ def book(request):
                 'tables': list_of_tables,
             })
 
-        print(bookings)
         # send the form away!
         return render(
             request, 'bookings/book.html',
@@ -104,7 +118,40 @@ def book(request):
 
 
 def edit_booking(request, id):
-    return HttpResponse(f'Edit booking {id}')
+    booking = get_object_or_404(Booking, pk=id)
+    admin = request.user.is_superuser or request.user.is_staff
+
+    # DEBUG
+    print(id)
+    print(booking)
+    print(admin)
+
+    if not (admin or request.user.username == booking.name):
+        raise Http404("No such a booking available")
+
+    if request.method == 'GET':
+        form = (
+            AdminBookingForm(instance=booking) if admin
+            else UserBookingForm(instance=booking))
+
+        return render(request, 'bookings/edit.html', {'form': form, 'id': id})
+    elif request.method == "POST":
+        form = (
+            AdminBookingForm(request.POST) if admin
+            else UserBookingForm(request.POST)
+        )
+        if form.is_valid():
+            booking = form.save(commit=False)
+            booking.id = id
+            #  DEBUG
+            print("id: ", booking.id)
+            booking.save()
+            form.save_m2m()
+        else:
+            raise Http404("Internal Error")
+        return HttpResponseRedirect(reverse('bookings:book_page'))
+    else:
+        raise Http404("Service not available")
 
 
 def delete_booking(request, id):

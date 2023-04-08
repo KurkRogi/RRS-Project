@@ -1,0 +1,98 @@
+{% extends 'bookings/base.html' %}
+
+{% block header %}
+    <div class="container h-100">
+        <div class="row h-100 align-items-center justify-content-center">
+            <div class="col-12 col-md-6">
+                <div class="container text-white">
+                    <div class="row gy-3">
+                        <div class="col-12 text-center">
+                            <h3>Edit Booking</h3>
+                        </div>
+                        <div class="col-12">
+                            <form action="{% url 'bookings:edit_booking' id %}" method="post">
+                                {% csrf_token %}
+                                {% for field in form %}
+                                    <div class="mb-3">
+                                        {{ field.errors }}
+                                        {{ field.label_tag }}
+                                        {{ field }}
+                                    </div>
+                                {% endfor %}
+                                <!-- Submit Button-->
+                                <div class="d-grid"><button class="btn btn-primary btn-xl" id="submitButton" type="submit"> <i class="bi bi-check-square"></i>&nbsp; Update</button></div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Script -->
+    <script>
+        const api_url = "{% url 'bookings:tables_API' %}";
+        const dateField = document.getElementById('id_date');
+        const timeField = document.getElementById('id_time');
+        const tablesField = document.getElementById('id_tables');
+        var alreadyBooked = {
+            date: dateField.value,
+            time: timeField.value,
+            options: [],
+        };
+
+        // Get all selected tables from form's <select> input
+        // instead of running another db querry and store them
+        // in alreadyBooked object
+        getAlreadyBooked(alreadyBooked, tablesField);
+
+        // Attach handlers to form's inputs
+        dateField.addEventListener('change', updateAvailableTables);
+        timeField.addEventListener('change', updateAvailableTables);
+        //tablesField.addEventListener('change',() => {
+            // if there are any changes in the list of tables
+            // update the list
+        //    getAlreadyBooked(alreadyBooked, tablesField);
+        //})
+        window.addEventListener('load', updateAvailableTables);
+
+        function updateAvailableTables() {
+            const button = document.getElementById('submitButton');  
+            const date = dateField.value;
+            const time = timeField.value;
+            fetch(`${api_url}?date=${date}&time=${time}`, {
+                headers: {
+                    'Accept':'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            }).then(response => {
+                return response.json()
+            }).then(data => {
+                // Clear all the options first
+                while (tablesField[0]) {
+                    tablesField[0] = null
+                }
+                // Add tables which were already booked if the time and date are the same
+                if (alreadyBooked.date == date & alreadyBooked.time == time) {
+                    for (i of alreadyBooked.options) {
+                        tablesField.appendChild(i)
+                    }
+                }
+                if (data.length > 0) {
+                    // ... and if there are any other available add them, too
+                    for (i in data) {
+                        tablesField.appendChild(new Option(`Table ${data[i].name} (${data[i].sits}) ${data[i].description}`, `${data[i].id}`));
+                    }
+                }
+            }).catch(error => {
+                console.error('Error: ', error)
+            })
+        }
+        function getAlreadyBooked(alreadyBooked, selectElement) {
+            for (let i = 0; i < selectElement.options.length; i++) {
+                if (selectElement.options[i].selected) {
+                    alreadyBooked.options.push(selectElement[i]);
+                }
+            }
+        }
+    </script>
+{% endblock %}

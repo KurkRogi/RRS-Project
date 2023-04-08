@@ -38,7 +38,7 @@
                         {% endif %}
                         <li class="nav-item"><a class="nav-link" href="{%url 'bookings:main_page'%}#services">About</a></li>
                         <li class="nav-item"><a class="nav-link" href="{%url 'bookings:main_page'%}#portfolio">Menu</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{%url 'bookings:book_page'%}/?date={% now "Y-m-d"%}">Book</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{%url 'bookings:book_page'%}?date={% now "Y-m-d"%}">Book</a></li>
                         {% if user.is_authenticated %}
                             <li class="nav-item"><a class="nav-link" href="{% url 'account_logout' %}">Logout</a></li>
                         {% else %}
@@ -67,7 +67,5 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/SimpleLightbox/2.1.0/simpleLightbox.min.js"></script>
         <!-- Core theme JS -->
         <script src="{% static 'bookings/js/scripts.js'%}"></script>
-        <!-- Script related to the project -->
-        <script src="{% static 'bookings/js/project.js'%}"></script>
     </body>
 </html>

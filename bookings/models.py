@@ -35,13 +35,12 @@ class Booking(models.Model):
 
     def get_tables_names(self):
         q = self.tables.all()
-        l = len(q)
+        ln = len(q)
         r = ""
-        for i in range(l):
+        for i in range(ln):
             r += f"{q[i].name} ({q[i].sits})"
-            r += " | " if i < l-1 else ""
+            r += " | " if i < ln-1 else ""
         return r
-
 
     class Meta:
         ordering = ['date', 'time']
