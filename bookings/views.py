@@ -68,13 +68,13 @@ def book(request):
         form.fields['date'].widget.attrs.update({'min': min_date})
 
         if admin:
-            bookings = Booking.objects.all()
-            old_bookings = bookings.filter(date__lt=today).exists() 
+            bookings = Booking.objects.all() 
         else:
             bookings = Booking.objects.filter(
                 name=request.user.username,
                 date__gte=today)
 
+        old_bookings = bookings.filter(date__lt=today).exists()
         data = []
 
         for b in bookings:
@@ -121,11 +121,6 @@ def edit_booking(request, id):
     booking = get_object_or_404(Booking, pk=id)
     admin = request.user.is_superuser or request.user.is_staff
 
-    # DEBUG
-    print(id)
-    print(booking)
-    print(admin)
-
     if not (admin or request.user.username == booking.name):
         raise Http404("No such a booking available")
 
@@ -136,19 +131,21 @@ def edit_booking(request, id):
 
         return render(request, 'bookings/edit.html', {'form': form, 'id': id})
     elif request.method == "POST":
-        form = (
-            AdminBookingForm(request.POST) if admin
-            else UserBookingForm(request.POST)
-        )
-        if form.is_valid():
-            booking = form.save(commit=False)
-            booking.id = id
-            #  DEBUG
-            print("id: ", booking.id)
-            booking.save()
-            form.save_m2m()
+        if admin:
+            form = AdminBookingForm(request.POST)
+            if form.is_valid():
+                booking = form.save(commit=False)
+                booking.id = id
+                booking.save()
+                form.save_m2m()
         else:
-            raise Http404("Internal Error")
+            form = UserBookingForm(request.POST)
+            if form.is_valid():
+                booking = form.save(commit=False)
+                booking.id = id
+                booking.name = request.user.username
+                booking.save()
+                form.save_m2m()
         return redirect('bookings:book_page')
     else:
         raise Http404("Service not available")
