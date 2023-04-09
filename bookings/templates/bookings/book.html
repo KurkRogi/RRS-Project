@@ -103,7 +103,7 @@
                 //get the element which called the dialog
                 var button = e.relatedTarget;
                 //update dialog 
-                modal.querySelector(".modal-title").textContent = `Delete a booking ${button.dataset.id}`;
+                modal.querySelector(".modal-title").textContent = "Delete a booking";
                 modal.querySelector(".modal-body span:nth-of-type(1)").textContent = `${button.dataset.date}`;
                 modal.querySelector(".modal-body span:nth-of-type(2)").textContent = `${button.dataset.time}`;
                 modal.querySelector(".modal-footer a").setAttribute("href", button.dataset.url);
@@ -113,6 +113,15 @@
 {% block content %}
     {% if bookings %}
         <div class="container" id="previous_bookings">
+            <div class="row my-3 justify-content-center">
+                {% if user.is_superuser and old_bookings%}
+                <div class="col-auto">
+                    <a href="{% url 'bookings:delete_past_bookings' %}">
+                        <button class="btn btn-lg btn-warning my-4">Delete all past bookings (before today)</button>
+                    </a>
+                </div>
+                {% endif %}
+            </div>
             <div class="row my-3 justify-content-center">
                     <table class="table table-striped w-auto">
                         <thead>
@@ -143,14 +152,13 @@
                                         <td>{{ booking.tables }}</td>
                                         <td class="text-center"><a href="{% url 'bookings:edit_booking' booking.id%}"><i class="bi bi-pencil-square"></i></a></td>
                                         <td class="text-center">
-                                            {% comment %} <a href="{% url 'bookings:delete_booking' booking.id%}" data-bs-toggle="modal" data-bs-target="#confirmModal" data-bs-whatever="@mdo"> {% endcomment %}
-                                            <a href="#"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#confirmModal"
-                                            data-id="{{ booking.id }}"
-                                            data-date="{{ booking.date|date:"l jS F y"}}"
-                                            data-time="{{ booking.time }}"
-                                            data-bs-url="{% url 'bookings:delete_booking' booking.id%}">
+                                            <a href="#" tabindex="0"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#confirmModal"
+                                                data-id="{{ booking.id }}"
+                                                data-date="{{ booking.date|date:"l jS F y"}}"
+                                                data-time="{{ booking.time }}"
+                                                data-url="{% url 'bookings:delete_booking' booking.id %}">
                                                 <i class="bi bi-x-circle-fill" ></i>
                                             </a>
                                         </td>
@@ -160,14 +168,13 @@
                                         <td class="px-5">{{ booking.tables }}</td>
                                         <td class="text-center"><a href="{% url 'bookings:edit_booking' booking.id%}"><i class="bi bi-pencil-square"></i></a></td>
                                         <td class="text-center">
-                                            {% comment %} <a href="{% url 'bookings:delete_booking' booking.id%}" data-bs-toggle="modal" data-bs-target="#confirmModal" data-bs-whatever="@mdo"> {% endcomment %}
-                                            <a href="#"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#confirmModal"
-                                            data-id="{{ booking.id }}"
-                                            data-date="{{ booking.date|date:"l jS F y"}}"
-                                            data-time="{{ booking.time }}"
-                                            data-url="{% url 'bookings:delete_booking' booking.id%}">
+                                            <a href="#" tabindex="0"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#confirmModal"
+                                                data-id="{{ booking.id }}"
+                                                data-date="{{ booking.date|date:"l jS F y"}}"
+                                                data-time="{{ booking.time }}"
+                                                data-url="{% url 'bookings:delete_booking' booking.id %}">
                                                 <i class="bi bi-x-circle-fill"></i>
                                             </a>
                                         </td>

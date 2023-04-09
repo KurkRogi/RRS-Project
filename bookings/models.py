@@ -27,7 +27,7 @@ class Booking(models.Model):
 
     name = models.CharField(max_length=100)
     date = models.DateField(default=timezone.now)
-    time = models.IntegerField(default=1)
+    time = models.IntegerField(default=1, choices=BOOKING_TIMES)
     tables = models.ManyToManyField(Table, blank=True)
 
     def __str__(self):

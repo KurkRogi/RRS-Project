@@ -8,4 +8,5 @@ urlpatterns = [
     path('check_available_tables/', views.check_available_tables, name='tables_API',),
     path('edit/<int:id>/', views.edit_booking, name='edit_booking'),
     path('delete/<int:id>/', views.delete_booking, name='delete_booking'),
+    path('delete/', views.delete_past_bookings, name='delete_past_bookings'),
 ]

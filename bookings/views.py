@@ -11,8 +11,7 @@ from .models import Table, Booking
 
 
 def index(request):
-    context = {}
-    return render(request, 'bookings/index.html', context)
+    return render(request, 'bookings/index.html')
 
 
 def check_available_tables(request):
@@ -70,6 +69,7 @@ def book(request):
 
         if admin:
             bookings = Booking.objects.all()
+            old_bookings = bookings.filter(date__lt=today).exists() 
         else:
             bookings = Booking.objects.filter(
                 name=request.user.username,
@@ -79,26 +79,26 @@ def book(request):
 
         for b in bookings:
 
-            list_of_tables = b.get_tables_names()
+            # list_of_tables = b.get_tables_names()
             # seraching in list of tuples with
             # generator expression technique from:
             # https://stackoverflow.com/questions/2917372/how-to-search-a-list-of-tuples-in-python
-            time = Booking.BOOKING_TIMES[next((
-                i for i, v in enumerate(Booking.BOOKING_TIMES)
-                if v[0] == b.time), 0)][1]
+            # time = Booking.BOOKING_TIMES[next((
+            #     i for i, v in enumerate(Booking.BOOKING_TIMES)
+            #     if v[0] == b.time), 0)][1]
 
             data.append({
                 'id': b.id,
                 'name': b.name,
                 'date': b.date,
-                'time': time,
-                'tables': list_of_tables,
+                'time': b.get_time_display(),
+                'tables': b.get_tables_names(),
             })
 
         # send the form away!
         return render(
             request, 'bookings/book.html',
-            {'form': form, 'bookings': data})
+            {'form': form, 'bookings': data, 'old_bookings': old_bookings})
 
     elif request.method == 'POST':
 
@@ -114,9 +114,9 @@ def book(request):
                 booking.save()
                 form.save_m2m()
 
-        return HttpResponseRedirect(reverse('bookings:book_page'))
+        return redirect('bookings:book_page')
 
-
+@login_required
 def edit_booking(request, id):
     booking = get_object_or_404(Booking, pk=id)
     admin = request.user.is_superuser or request.user.is_staff
@@ -149,10 +149,19 @@ def edit_booking(request, id):
             form.save_m2m()
         else:
             raise Http404("Internal Error")
-        return HttpResponseRedirect(reverse('bookings:book_page'))
+        return redirect('bookings:book_page')
     else:
         raise Http404("Service not available")
 
-
+@login_required
 def delete_booking(request, id):
-    return HttpResponse(f'Delete booking {id}')
+    get_object_or_404(Booking, id=id).delete()
+
+    return redirect('bookings:book_page')
+
+
+def delete_past_bookings(request):
+    if request.user.is_superuser:
+        Booking.objects.filter(date__lt=timezone.now()).delete()
+    
+    return redirect('bookings:book_page')
