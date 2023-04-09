@@ -3,8 +3,22 @@
 {% block header %}
     <div class="container h-100">
         <div class="row h-100 align-items-center justify-content-center">
-            <div class="col-12 col-md-10 col-lg-8 col-xl-6">
+            <div class="col-12 col-md-10 col-lg-8">
                 <div class="container text-white">
+                    {% if messages %}
+                        <div class="row gy-3 mb-4">
+                            <div class="alert alert-warning alert-dismissible fade show" role="alert" id="message-box">
+                                {% for message in messages %}
+                                    {% if forloop.last %}
+                                        <p class="mb-0">{{message}}</p>
+                                    {% else %}
+                                        <p class="mb-1">{{message}}</p>
+                                    {% endif %}
+                                {% endfor %}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        </div>
+                    {% endif %}
                     <div class="row gy-3">
                         <div class="col-12 text-center">
                             <h3>Make a new booking</h3>

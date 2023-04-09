@@ -8,9 +8,13 @@ from bookings.forms import UserBookingForm, AdminBookingForm
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from .models import Table, Booking
+from django.contrib import messages
 
 
 def index(request):
+    # Clear messages storage
+    for message in messages.get_messages(request):
+        pass
     return render(request, 'bookings/index.html')
 
 
@@ -105,6 +109,11 @@ def book(request):
         if admin:
             form = AdminBookingForm(request.POST)
             if form.is_valid():
+                messages.add_message(
+                    request,
+                    messages.INFO,
+                    f"Booking created for {form.cleaned_data['name']} on {form.cleaned_data['date'].strftime('%-d %B')}"
+                    )
                 form.save()
         else:
             form = UserBookingForm(request.POST)
@@ -113,6 +122,13 @@ def book(request):
                 booking.name = request.user.username
                 booking.save()
                 form.save_m2m()
+                messages.add_message(
+                    request,
+                    messages.INFO,
+                    f"Booking created for {form.cleaned_data['date'].strftime('%-d %B')}"
+                    )
+        
+        
 
         return redirect('bookings:book_page')
 
@@ -138,6 +154,11 @@ def edit_booking(request, id):
                 booking.id = id
                 booking.save()
                 form.save_m2m()
+                messages.add_message(
+                    request,
+                    messages.INFO,
+                    f"Booking succesfully changed"
+                    )
         else:
             form = UserBookingForm(request.POST)
             if form.is_valid():
@@ -146,19 +167,37 @@ def edit_booking(request, id):
                 booking.name = request.user.username
                 booking.save()
                 form.save_m2m()
+                messages.add_message(
+                    request,
+                    messages.INFO,
+                    f"Booking succesfully changed"
+                    )
         return redirect('bookings:book_page')
     else:
         raise Http404("Service not available")
 
 @login_required
 def delete_booking(request, id):
-    get_object_or_404(Booking, id=id).delete()
+    booking = get_object_or_404(Booking, id=id)
+    booking.delete()
+    messages.add_message(
+                    request,
+                    messages.INFO,
+                    f"Booking for {booking.name} for {booking.date.strftime('%-d %B')} "
+                    + f"at {booking.get_time_display()} deleted!"
+                    )
 
     return redirect('bookings:book_page')
 
 
 def delete_past_bookings(request):
     if request.user.is_superuser:
-        Booking.objects.filter(date__lt=timezone.now()).delete()
+        deleted = Booking.objects.filter(date__lt=timezone.now()).delete()
+        deleted = deleted[1]['bookings.Booking']
+        messages.add_message(
+                    request,
+                    messages.INFO,
+                    f"{deleted} {'bookings' if deleted>1 else 'booking'} deleted."
+                    )
     
     return redirect('bookings:book_page')
