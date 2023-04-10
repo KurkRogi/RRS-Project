@@ -1,108 +1,77 @@
-![CI logo](https://codeinstitute.s3.amazonaws.com/fullstack/ci_logo_small.png)
+# RSS Project
 
-Welcome KurkRogi,
+![Project main screen](/doc-images/index-above-the-fold.png)
 
-This is the Code Institute student template for Gitpod. We have preinstalled all of the tools you need to get started. It's perfectly ok to use this template as the basis for your project submissions.
+[RSS](https://ci-igor-rss.herokuapp.com/) is an application for managing restaurant table reservations. It allows a customer to register with the system and make, list, cancel and change reservations for a choosen date and time and for specific table or tables. It also allows an admin user to take bookings for any customer and register them on the system, edit, cancel and see all bookings.
 
-You can safely delete this README.md file, or change it for your own project. Please do read it at least once, though! It contains some important information about Gitpod and the extensions we use. Some of this information has been updated since the video content was created. The last update to this file was: **September 1, 2021**
+The main landing page presents the user with a button to make a reservation and links to information about the place, galery of images and downloadable menu.
 
-## Gitpod Reminders
+![Project main page](/doc-images/whole-index-page.png)
 
-To run a frontend (HTML, CSS, Javascript only) application in Gitpod, in the terminal, type:
+## Features
 
-`python3 -m http.server`
+### **User Registration and Logging-in**
+A user can register with the system and then log-in in order to gain access to the booking feature. If users are not logged in and proceed to the booking page they will be asked to log-in or register
 
-A blue button should appear to click: _Make Public_,
+![User registration page](/doc-images/register.png)
+![Log in page](/doc-images/login.png)
 
-Another blue button should appear to click: _Open Browser_.
+### **Booking**
+After a successful logging to the system a user can make a new booking, see all his/hers bookings and delete them or amend.  Similarily and admin user is presented with very similar functionality except that an admin can see all the bookings and make reservation to any user, also not registered on the system.
 
-To run a backend Python file, type `python3 app.py`, if your Python file is named `app.py` of course.
+![Regular User Booking](/doc-images/user-booking-form.png)
+![Admin Booking](/doc-images/admin-booking-form.png)
 
-A blue button should appear to click: _Make Public_,
+Only available tables for a given date and time slot combination are made available for selection.
 
-Another blue button should appear to click: _Open Browser_.
+![Admin Booking](/doc-images/available-tables-only.png)
 
-In Gitpod you have superuser security privileges by default. Therefore you do not need to use the `sudo` (superuser do) command in the bash terminal in any of the lessons.
+### **Booking Amendments**
+Edition of a booking is accessed by a edit button in a table listing all bookings. A pre-populated form is displayed and user can make and confirm changes. This is also different for a regular and an admin user.
 
-To log into the Heroku toolbelt CLI:
+![Edit Form](/doc-images/edit-booking.png)
 
-1. Log in to your Heroku account and go to *Account Settings* in the menu under your avatar.
-2. Scroll down to the *API Key* and click *Reveal*
-3. Copy the key
-4. In Gitpod, from the terminal, run `heroku_config`
-5. Paste in your API key when asked
+### **Booking Cancelation**
+In the same way as editing a deletition of a booking is made by clicking an icon in the bookings listing. A dialog is displayed allowing user either confim or cancel the action. Additionaly a listing of bookings for the admin shows a button alowing the admin to delete all expierd bookings if they exist.
 
-You can now use the `heroku` CLI program - try running `heroku apps` to confirm it works. This API key is unique and private to you so do not share it. If you accidentally make it public then you can create a new one with _Regenerate API Key_.
+![Confirmation dialog](/doc-images/confirmation-dialog.png)
 
-------
+### **Administrator features**
+An admin can acces all bookings and users via the /admin panel and do any arbitrary changes.
 
-## Release History
+## **Testing**
 
-We continually tweak and adjust this template to help give you the best experience. Here is the version history:
+- I tested the website in Firefox, Safari, Chrome and Edge browsers. Both responsiveness and integrity of the layouts were checked. The website worked in all four browsers without any problems.
+- I confirmed that all texts a legible in both on mobile and desktop computers.
+- All hyperlinks were checked and link to the desired detinations.
+- The booking feature was extensively tested by manually entering the data, both as a regular and admin user.
+- The listing of bookings was checked against the actual list of bookings in the admin page.
+- Both the edit and delete features were tested by clicking appropriate links and checking if the results were recorded in the database (both with the admin panel and the database itself)
 
-**September 1 2021:** Remove `PGHOSTADDR` environment variable.
+### Bugs
+All noticed bugs were fixed.
+There are no known bugs remaining.
 
-**July 19 2021:** Remove `font_fix` script now that the terminal font issue is fixed.
+## **Deployment**
 
-**July 2 2021:** Remove extensions that are not available in Open VSX.
+To deploy this application on Heroku:
 
-**June 30 2021:** Combined the P4 and P5 templates into one file, added the uptime script. See the FAQ at the end of this file.
+1. Log in to Heroku and proceed to dashboard
+2. Select to create new app and give it a name and select region, press **Create app** button
+3. In the Settings tab in the Config vars click **Reveal Config vars** and add the following:
+    - key *PORT* and value *8000*
+    - key *DATABASE_URL* and value *Link to your postgress database*
+    - key *HOST_NAME* and value *URL of your app on Heroku* (listed below in the Domains section)
+    - key *SECRET_KEY* and value *A secret key for your app*
+4. In the buildpacks section add *heroku/python*
+5. Go to the **Deployment** tab go to **Deployment method** section and select **Github**. Connect to you github account if asked
+6. Search for the repository containing this app and connect to it
+7. Either using **Automatic deploys** or **Manual deploy** select the branch (usually main) and press **Deploy Branch** button
 
-**June 10 2021:** Added: `font_fix` script and alias to fix the Terminal font issue
+## Credits
 
-**May 10 2021:** Added `heroku_config` script to allow Heroku API key to be stored as an environment variable.
+C.I. gitpod template for Heroku app deployments
+The template for the website coms from [startbootstrap.com](https://startbootstrap.com/theme/creative)
 
-**April 7 2021:** Upgraded the template for VS Code instead of Theia.
-
-**October 21 2020:** Versions of the HTMLHint, Prettier, Bootstrap4 CDN and Auto Close extensions updated. The Python extension needs to stay the same version for now.
-
-**October 08 2020:** Additional large Gitpod files (`core.mongo*` and `core.python*`) are now hidden in the Explorer, and have been added to the `.gitignore` by default.
-
-**September 22 2020:** Gitpod occasionally creates large `core.Microsoft` files. These are now hidden in the Explorer. A `.gitignore` file has been created to make sure these files will not be committed, along with other common files.
-
-**April 16 2020:** The template now automatically installs MySQL instead of relying on the Gitpod MySQL image. The message about a Python linter not being installed has been dealt with, and the set-up files are now hidden in the Gitpod file explorer.
-
-**April 13 2020:** Added the _Prettier_ code beautifier extension instead of the code formatter built-in to Gitpod.
-
-**February 2020:** The initialisation files now _do not_ auto-delete. They will remain in your project. You can safely ignore them. They just make sure that your workspace is configured correctly each time you open it. It will also prevent the Gitpod configuration popup from appearing.
-
-**December 2019:** Added Eventyret's Bootstrap 4 extension. Type `!bscdn` in a HTML file to add the Bootstrap boilerplate. Check out the <a href="https://github.com/Eventyret/vscode-bcdn" target="_blank">README.md file at the official repo</a> for more options.
-
-------
-
-## FAQ about the uptime script
-
-**Why have you added this script?**
-
-It will help us to calculate how many running workspaces there are at any one time, which greatly helps us with cost and capacity planning. It will help us decide on the future direction of our cloud-based IDE strategy.
-
-**How will this affect me?**
-
-For everyday usage of Gitpod, it doesn’t have any effect at all. The script only captures the following data:
-
-- An ID that is randomly generated each time the workspace is started.
-- The current date and time
-- The workspace status of “started” or “running”, which is sent every 5 minutes.
-
-It is not possible for us or anyone else to trace the random ID back to an individual, and no personal data is being captured. It will not slow down the workspace or affect your work.
-
-**So….?**
-
-We want to tell you this so that we are being completely transparent about the data we collect and what we do with it.
-
-**Can I opt out?**
-
-Yes, you can. Since no personally identifiable information is being captured, we'd appreciate it if you let the script run; however if you are unhappy with the idea, simply run the following commands from the terminal window after creating the workspace, and this will remove the uptime script:
-
-```
-pkill uptime.sh
-rm .vscode/uptime.sh
-```
-
-**Anything more?**
-
-Yes! We'd strongly encourage you to look at the source code of the `uptime.sh` file so that you know what it's doing. As future software developers, it will be great practice to see how these shell scripts work.
-
----
-
-Happy coding!
+## **Media**
+Images are from [Freepik](https://www.freepik.com/)
